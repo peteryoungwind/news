@@ -79,6 +79,7 @@ class Spider(object):
             # 打印标题
             item_link = html.xpath("//div[@class='newsflash-catalog-flow-list']/div[@class='flow-item'][" + str(i) + "]//a[@class='item-title']/@href")
             item_link = item_link[0]
+            item_link = item_link.replace("/newsflashes/", "")
             # print(item_link)
             # 打印内容
             item_content = html.xpath("//div[@class='newsflash-catalog-flow-list']/div[@class='flow-item'][" + str(i) + "]//div[@class='item-desc']/span/text()")
@@ -117,7 +118,7 @@ class Spider(object):
                     sr.expire("36kr" + news.link, 36000)
                     # 发送钉钉消息
                     message = "【" + news.title + "】" + "\n\n" + news.content
-                    param = {'msgtype': 'markdown', 'markdown': {"title": "36快讯", "text": message}}
+                    param = {'msgtype': 'markdown', 'markdown': {"title": "36kr快讯", "text": message}}
                     requests.post(url1, headers=headers, data=json.dumps(param))
                     requests.post(url2, headers=headers, data=json.dumps(param))
                     requests.post(url3, headers=headers, data=json.dumps(param))

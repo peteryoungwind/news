@@ -80,6 +80,7 @@ class Spider(object):
         for i in range(0, 5, 1):
             item_title = title_list[i]
             item_link = url_list[i]
+            item_link = item_link.replace("http://finance.eastmoney.com/news/", "").replace(".html", "").replace(",", "")
             item_content = content_list[i]
 
             new = News(item_title, "item_date", item_content, item_link)
@@ -120,8 +121,8 @@ class Spider(object):
                     message = news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "东财快讯", "text": message}}
                     requests.post(url1, headers=headers, data=json.dumps(param))
-                    requests.post(url2, headers=headers, data=json.dumps(param))
-                    requests.post(url3, headers=headers, data=json.dumps(param))
+                    # requests.post(url2, headers=headers, data=json.dumps(param))
+                    # requests.post(url3, headers=headers, data=json.dumps(param))
         except Exception as e:
             print(e)
 

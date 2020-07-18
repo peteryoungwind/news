@@ -72,6 +72,8 @@ class Spider(object):
             # 打印链接
             item_link = html.xpath('//div[@id="lists"]/div[' + str(i) + ']/div[@class="item-main"]/p/a/@href')
             item_link = item_link[0]
+            item_link = item_link.replace("https://www.jiemian.com/article/", "").replace(".html", "")
+            item_link = "jm" + item_link
             # 打印内容
             item_content = html.xpath('//div[@id="lists"]/div[' + str(i) + ']/div[@class="item-main"]/p/text()')
             item_content = item_content[1]
