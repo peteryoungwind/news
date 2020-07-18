@@ -108,13 +108,13 @@ class Spider(object):
             sr = StrictRedis(host='122.51.161.239', port=6379, db=0)
             curr_time = datetime.datetime.now()
             for news in data_list:
-                if sr.exists("36kr" + news.title):
+                if sr.exists("36kr" + news.link):
                     continue
                 else:
                     print("发送消息 " + curr_time.strftime("%Y-%m-%d %H:%M"))
                     # 存储redis  去重  过期时间10小时
-                    sr.sadd("36kr" + news.title, news.title)
-                    sr.expire("36kr" + news.title, 36000)
+                    sr.set("36kr" + news.link, news.title)
+                    sr.expire("36kr" + news.link, 36000)
                     # 发送钉钉消息
                     message = "【" + news.title + "】" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "36快讯", "text": message}}
