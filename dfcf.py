@@ -77,7 +77,7 @@ class Spider(object):
         content_list = jsonpath(data_dict, '$..digest')
 
         news_list = []
-        for i in range(1, 6, 1):
+        for i in range(0, 5, 1):
             item_title = title_list[i]
             item_link = url_list[i]
             item_content = content_list[i]
