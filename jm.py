@@ -145,7 +145,7 @@ def task():
         # 只保留15条已经发送过的消息
         if len(send_list) > 15:
             print("清除消息，总共数量" + str(len(send_list)))
-            send_list = send_list[1:15]
+            send_list = send_list[1:16]
             print(send_list)
         spider = Spider()
         spider.run()
