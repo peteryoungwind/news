@@ -118,8 +118,9 @@ class Spider(object):
                     # 发送钉钉消息
                     message = "【" + news.title + "】" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "快讯", "text": message}}
-                    requests.post(url1, headers=headers, data=json.dumps(param))
+                    # requests.post(url1, headers=headers, data=json.dumps(param))
                     requests.post(url2, headers=headers, data=json.dumps(param))
+                    time.sleep(2)
                     requests.post(url3, headers=headers, data=json.dumps(param))
         except Exception as e:
             print(e)
@@ -142,10 +143,10 @@ def task():
         print("---开始执行任务---")
 
         global send_list
-        # 只保留15条已经发送过的消息
-        if len(send_list) > 15:
+        # 只保留12条已经发送过的消息
+        if len(send_list) > 12:
             print("清除消息，总共数量" + str(len(send_list)))
-            send_list = send_list[1:16]
+            del send_list[0]
             print(send_list)
         spider = Spider()
         spider.run()
@@ -159,7 +160,4 @@ def dojob():
     scheduler.start()
 
 dojob()
-
-
-
 

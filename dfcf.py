@@ -98,7 +98,7 @@ class Spider(object):
     def save_to_redis(self, data_list):
 
 
-        # 小强快讯
+        # 小强快讯 测试群
         url1 = "https://oapi.dingtalk.com/robot/send?access_token=c7860c345fa6b7d858c16c74eddc0c6508a24cf688a6183633665f0c4baa510c"
         # 小强机器人
         url2 = "https://oapi.dingtalk.com/robot/send?access_token=69c8915d30dc778b10171577b1e4f59f3541dfb93d05975c2ee5d46d5bb5619c"
@@ -122,8 +122,9 @@ class Spider(object):
                     send_list.append(news.link)
                     message = news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "东财快讯", "text": message}}
-                    requests.post(url1, headers=headers, data=json.dumps(param))
+                    # requests.post(url1, headers=headers, data=json.dumps(param))
                     requests.post(url2, headers=headers, data=json.dumps(param))
+                    time.sleep(2)
                     requests.post(url3, headers=headers, data=json.dumps(param))
         except Exception as e:
             print(e)
@@ -135,10 +136,10 @@ def task():
     time.sleep(random.randint(0, 30))
     print("---开始执行任务---")
     global send_list
-    # 只保留15条已经发送过的消息
-    if len(send_list) > 15:
+    # 只保留12条已经发送过的消息
+    if len(send_list) > 12:
         print("清除消息，总共数量" + str(len(send_list)))
-        send_list = send_list[1:16]
+        del send_list[0]
         print(send_list)
     spider = Spider()
     spider.run()
