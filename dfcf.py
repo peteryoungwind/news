@@ -30,7 +30,7 @@ user_agent = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.20 (KHTML, like Gecko) Chrome/19.0.1036.7 Safari/535.20",
     "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52"
 ]
-
+send_list = []
 
 class News:
     def __init__(self, title, date, content, link):
@@ -107,22 +107,24 @@ class Spider(object):
         headers = {"Content-Type": "application/json;charset=UTF-8"}
         # 连接redis
         try:
-            sr = StrictRedis(host='122.51.161.239', port=6379, db=0)
+            # sr = StrictRedis(host='122.51.161.239', port=6379, db=0)
+            global send_list
             curr_time = datetime.datetime.now()
             for news in data_list:
-                if sr.exists("dfcf" + news.link):
+                if news.link in send_list:
                     continue
                 else:
-                    print("发送消息 " + curr_time.strftime("%Y-%m-%d %H:%M"))
+                    print("发送消息 " + curr_time.strftime("%Y-%m-%d %H:%M") + " " + news.title)
                     # 存储redis  去重  过期时间5小时
-                    sr.set("dfcf" + news.link, news.title)
-                    sr.expire("dfcf" + news.link, 18000)
+                    # sr.set("dfcf" + news.link, news.title)
+                    # sr.expire("dfcf" + news.link, 18000)
                     # 发送钉钉消息
+                    send_list.append(news.link)
                     message = news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "东财快讯", "text": message}}
                     requests.post(url1, headers=headers, data=json.dumps(param))
-                    # requests.post(url2, headers=headers, data=json.dumps(param))
-                    # requests.post(url3, headers=headers, data=json.dumps(param))
+                    requests.post(url2, headers=headers, data=json.dumps(param))
+                    requests.post(url3, headers=headers, data=json.dumps(param))
         except Exception as e:
             print(e)
 
@@ -132,6 +134,12 @@ def task():
     # 随即暂停0-30秒  降低风险
     time.sleep(random.randint(0, 30))
     print("---开始执行任务---")
+    global send_list
+    # 只保留15条已经发送过的消息
+    if len(send_list) > 15:
+        print("清除消息，总共数量" + str(len(send_list)))
+        send_list = send_list[1:16]
+        print(send_list)
     spider = Spider()
     spider.run()
 

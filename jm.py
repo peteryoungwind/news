@@ -30,6 +30,8 @@ user_agent = [
        "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52"
 ]
 
+send_list = []
+
 class News:
     def __init__(self, title, date, content, link):
         self.title = title
@@ -62,21 +64,22 @@ class Spider(object):
         html = etree.HTML(data)
 
         news_list = []
-        for i in range(2, 7, 1):
+
+        for i in range(0, 5, 1):
             # 打印时间
-            item_date = html.xpath('//div[@id="lists"]/div[' + str(i) + ']/div[@class="item-date"]/text()')
-            item_date = item_date[0]
+            item_date = html.xpath('//div[@id="lists"]//div[@class="item-date"]/text()')
+            item_date = item_date[i]
             # 打印标题
-            item_title = html.xpath('//div[@id="lists"]/div[' + str(i) + ']/div[@class="item-main"]/p/a/text()')
-            item_title = item_title[0]
+            item_title = html.xpath('//div[@id="lists"]//div[@class="item-main"]/p/a/text()')
+            item_title = item_title[i]
             # 打印链接
-            item_link = html.xpath('//div[@id="lists"]/div[' + str(i) + ']/div[@class="item-main"]/p/a/@href')
-            item_link = item_link[0]
+            item_link = html.xpath('//div[@id="lists"]//div[@class="item-main"]/p/a/@href')
+            item_link = item_link[i]
             item_link = item_link.replace("https://www.jiemian.com/article/", "").replace(".html", "")
             item_link = "jm" + item_link
             # 打印内容
-            item_content = html.xpath('//div[@id="lists"]/div[' + str(i) + ']/div[@class="item-main"]/p/text()')
-            item_content = item_content[1]
+            item_content = html.xpath('//div[@id="lists"]//div[@class="item-main"]/p/text()')
+            item_content = item_content[i*2 + 1]
             item_content = item_content.replace("】", "").strip()
             new = News(item_title, item_date, item_content, item_link)
             news_list.append(new)
@@ -99,16 +102,19 @@ class Spider(object):
         headers = {"Content-Type": "application/json;charset=UTF-8"}
         # 连接redis
         try:
-            sr = StrictRedis(host='122.51.161.239', port=6379, db=0)
+            # sr = StrictRedis(host='122.51.161.239', port=6379, db=0)
             curr_time = datetime.datetime.now()
+            global send_list
             for news in data_list:
-                if sr.exists(news.link):
+                if news.link in send_list:
                     continue
                 else:
-                    print("发送消息 " + curr_time.strftime("%Y-%m-%d %H:%M"))
+                    print("发送消息 " + curr_time.strftime("%Y-%m-%d %H:%M") + " " + news.title)
                     # 存储redis  去重 过期时间1小时
-                    sr.set(news.link, news.title)
-                    sr.expire(news.link, 18000)
+                    # sr.set(news.link, news.title)
+                    # sr.expire(news.link, 18000)
+                    # 把发送过的消息 保存起来
+                    send_list.append(news.link)
                     # 发送钉钉消息
                     message = "【" + news.title + "】" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "快讯", "text": message}}
@@ -134,6 +140,13 @@ def task():
         # 随机暂停0-30秒  降低风险
         time.sleep(random.randint(0, 30))
         print("---开始执行任务---")
+
+        global send_list
+        # 只保留15条已经发送过的消息
+        if len(send_list) > 15:
+            print("清除消息，总共数量" + str(len(send_list)))
+            send_list = send_list[1:15]
+            print(send_list)
         spider = Spider()
         spider.run()
 
@@ -146,7 +159,6 @@ def dojob():
     scheduler.start()
 
 dojob()
-
 
 
 
