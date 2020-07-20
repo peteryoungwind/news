@@ -122,10 +122,10 @@ class Spider(object):
                     # 发送钉钉消息
                     message = "【" + news.title + "】" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "36kr快讯", "text": message}}
-                    # requests.post(url1, headers=headers, data=json.dumps(param))
-                    requests.post(url2, headers=headers, data=json.dumps(param))
-                    time.sleep(2)
-                    requests.post(url3, headers=headers, data=json.dumps(param))
+                    requests.post(url1, headers=headers, data=json.dumps(param))
+                    # requests.post(url2, headers=headers, data=json.dumps(param))
+                    # time.sleep(2)
+                    # requests.post(url3, headers=headers, data=json.dumps(param))
         except Exception as e:
             print(e)
 
