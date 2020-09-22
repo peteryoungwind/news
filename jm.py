@@ -35,7 +35,6 @@ send_list = []
 def insertData(sql):
     # 打开数据库连接
     db = pymysql.connect("122.51.161.239", "root", "pzq18217074393", "test")
-    print(sql)
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
