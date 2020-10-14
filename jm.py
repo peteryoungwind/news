@@ -146,9 +146,9 @@ class Spider(object):
                     requests.post(url3, headers=headers, data=json.dumps(param))
 
                     # 插入数据库
-                    sql = "INSERT INTO news(news_id, title, url, content, create_time, source) VALUES ('%s', '%s',  '%s',  '%s',  '%s',  '%s')" % (
-                        news.link, news.title, news.origin_link, news.content, curr_time.strftime("%Y-%m-%d %H:%M"), '界面')
-                    insertData(sql)
+                    # sql = "INSERT INTO news(news_id, title, url, content, create_time, source) VALUES ('%s', '%s',  '%s',  '%s',  '%s',  '%s')" % (
+                    #     news.link, news.title, news.origin_link, news.content, curr_time.strftime("%Y-%m-%d %H:%M"), '界面')
+                    # insertData(sql)
         except Exception as e:
             print(e)
 
