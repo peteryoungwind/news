@@ -12,8 +12,8 @@ def searchData():
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
-    # SQL 查询语句  30分钟内的数据
-    sql = "SELECT * FROM `weibo` WHERE publish_time > date_add(now(),interval -30 minute)"
+    # SQL 查询语句  10分钟内的数据
+    sql = "SELECT * FROM `weibo` WHERE publish_time > date_add(now(),interval -10 minute)"
     print(sql)
     try:
         # 执行sql语句
@@ -67,15 +67,15 @@ def searchData():
 
 def getWeibo():
     print("-----爬取微博信息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
-    os.system('python -m weiboSpider')
+    os.system('cd weiboSpider;python -m weibo_spider')
     print("-----爬取微博信息结束-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     searchData()
 
 def dojob():
     # 创建调度器：BlockingScheduler
     scheduler = BlockingScheduler()
-    # 添加任务,时间间隔30分组  60*30  爬取微博信息
-    scheduler.add_job(getWeibo, 'interval', seconds=300, id='test_job1')
+    # 添加任务,时间间隔30分组  60*10  爬取微博信息
+    scheduler.add_job(getWeibo, 'interval', seconds=600, id='test_job1')
     scheduler.start()
 
 
