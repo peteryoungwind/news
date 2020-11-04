@@ -79,10 +79,10 @@ def getWeibo():
 def dojob():
     # 创建调度器：BlockingScheduler
     scheduler = BlockingScheduler()
-    # 添加任务,时间间隔30分组  60*10  爬取微博信息
+    # 添加任务,时间间隔10分组  60*10  爬取微博信息
     scheduler.add_job(getWeibo, 'interval', seconds=600, id='test_job1')
     scheduler.start()
 
 
-# dojob()
-getUserData()
+dojob()
+# getUserData()
