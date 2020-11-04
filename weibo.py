@@ -5,72 +5,77 @@ import requests, json
 from apscheduler.schedulers.blocking import BlockingScheduler
 import datetime
 
-def searchData():
+#获取用户信息
+def getUserData():
     print("-----发送钉钉消息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # 打开数据库连接
     db = pymysql.connect("122.51.161.239", "root", "pzq18217074393", "weibo")
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
-    # SQL 查询语句  10分钟内的数据
-    sql = "SELECT * FROM `weibo` WHERE publish_time > date_add(now(),interval -10 minute)"
-    print(sql)
-    try:
-        # 执行sql语句
-        cursor.execute(sql)
-        # 提交到数据库执行
-        results = cursor.fetchall()
-        # 小强快讯
-        url1 = "https://oapi.dingtalk.com/robot/send?access_token=e0dc9bec54bb4ed2dd128fd197a08fe41799e219b6292300aba42d4e8dd91bbc"
-        headers = {"Content-Type": "application/json;charset=UTF-8"}
+    # 查询要发送的用户列表
+    sql = "SELECT * FROM `dd_send` WHERE status = '0'"
+    # 执行sql语句
+    cursor.execute(sql)
+    # 提交到数据库执行
+    results = cursor.fetchall()
 
-        for row in results:
-            id = row[0]
-            userId = row[1]
-            content = row[2]
-            link = row[3]
-            pict = row[4]
-
-            content = content.replace("原图", "").replace(" ", "").replace("显示地图", "").replace("视频", "")
-
-            index = content.find("[组图")
-            if index != -1:
-                content = content[0:index]
-
-            # SQL 查询语句
-            sql = "SELECT nickname FROM `user` WHERE id = '%s'" % (userId)
-            print(sql)
-            # 执行sql语句
-            cursor.execute(sql)
-            # 提交到数据库执行
-            userResults = cursor.fetchall()
-            userName = userResults[0][0]
-
-            pictList = pict.split(",")
-
-            # 发送钉钉消息
-            #循环遍历图片，追加输出
-            for picture in pictList:
-                content = content + "![](" + picture + ")"
-
-            message = "【" + userName + "】\n\n>" + content
-            print(message)
-            param = {'msgtype': 'markdown', 'markdown': {"title": "快讯", "text": message}}
-            requests.post(url1, headers=headers, data=json.dumps(param))
-    except:
-        # 如果发生错误则回滚
-        db.rollback()
+    for user in results:
+        userId = user[1]
+        userName = user[2]
+        ddLink = user[3]
+        getWeiboData(userId, userName, ddLink, cursor)
 
     # 关闭数据库连接
     db.close()
     print("-----发送钉钉消息结束-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
 
+#获取用户的微博信息
+def getWeiboData(userId, userName, ddLink, cursor):
+    # SQL 查询语句  10分钟内的数据
+    sql = "SELECT * FROM `weibo` WHERE user_id = '%s' and publish_time >= '%s'" % (
+    userId, (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S"))
+    # 执行sql语句
+    cursor.execute(sql)
+    # 提交到数据库执行
+    results = cursor.fetchall()
+    for row in results:
+        id = row[0]
+        userId = row[1]
+        content = row[2]
+        link = row[3]
+        pict = row[4]
+        sendMessage(userName, ddLink, content, pict)
+
+#发送钉钉消息
+def sendMessage(userName, ddLink, content, pict):
+    content = content.replace("原图", "").replace(" ", "").replace("显示地图", "").replace("视频", "")
+
+    index = content.find("[组图")
+    if index != -1:
+        content = content[0:index]
+
+    pictList = pict.split(",")
+
+    # 发送钉钉消息
+    # 循环遍历图片，追加输出
+    for picture in pictList:
+        content = content + "![](" + picture + ")"
+
+    message = "【" + userName + "】\n\n>" + content
+    print(message)
+    headers = {"Content-Type": "application/json;charset=UTF-8"}
+    param = {'msgtype': 'markdown', 'markdown': {"title": "微博", "text": message}}
+    requests.post(ddLink, headers=headers, data=json.dumps(param))
+
+#执行脚本任务  开始运行程序
 def getWeibo():
     print("-----爬取微博信息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     os.system('cd weiboSpider;python -m weibo_spider')
     print("-----爬取微博信息结束-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
-    searchData()
+    getUserData()
 
+#执行定时任务
 def dojob():
     # 创建调度器：BlockingScheduler
     scheduler = BlockingScheduler()
@@ -79,5 +84,5 @@ def dojob():
     scheduler.start()
 
 
-dojob()
-# getWeibo()
+# dojob()
+getUserData()
