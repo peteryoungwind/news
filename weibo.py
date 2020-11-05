@@ -5,7 +5,8 @@ import requests, json
 from apscheduler.schedulers.blocking import BlockingScheduler
 import datetime
 
-#获取用户信息
+
+# 获取用户信息
 def getUserData():
     print("-----发送钉钉消息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # 打开数据库连接
@@ -30,11 +31,12 @@ def getUserData():
     db.close()
     print("-----发送钉钉消息结束-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
 
-#获取用户的微博信息
+
+# 获取用户的微博信息
 def getWeiboData(userId, userName, ddLink, cursor):
     # SQL 查询语句  10分钟内的数据
     sql = "SELECT * FROM `weibo` WHERE user_id = '%s' and publish_time >= '%s'" % (
-    userId, (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:%S"))
+        userId, (datetime.datetime.now() - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M"))
     # 执行sql语句
     cursor.execute(sql)
     # 提交到数据库执行
@@ -47,7 +49,8 @@ def getWeiboData(userId, userName, ddLink, cursor):
         pict = row[4]
         sendMessage(userName, ddLink, content, pict)
 
-#发送钉钉消息
+
+# 发送钉钉消息
 def sendMessage(userName, ddLink, content, pict):
     content = content.replace("原图", "").replace(" ", "").replace("显示地图", "").replace("视频", "")
 
@@ -55,12 +58,13 @@ def sendMessage(userName, ddLink, content, pict):
     if index != -1:
         content = content[0:index]
 
-    pictList = pict.split(",")
+    if pict != "无":
+        pictList = pict.split(",")
 
-    # 发送钉钉消息
-    # 循环遍历图片，追加输出
-    for picture in pictList:
-        content = content + "![](" + picture + ")"
+        # 发送钉钉消息
+        # 循环遍历图片，追加输出
+        for picture in pictList:
+            content = content + "![](" + picture + ")"
 
     message = "【" + userName + "】\n\n>" + content
     print(message)
@@ -68,14 +72,16 @@ def sendMessage(userName, ddLink, content, pict):
     param = {'msgtype': 'markdown', 'markdown': {"title": "微博", "text": message}}
     requests.post(ddLink, headers=headers, data=json.dumps(param))
 
-#执行脚本任务  开始运行程序
+
+# 执行脚本任务  开始运行程序
 def getWeibo():
     print("-----爬取微博信息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     os.system('cd weiboSpider;python -m weibo_spider')
     print("-----爬取微博信息结束-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     getUserData()
 
-#执行定时任务
+
+# 执行定时任务
 def dojob():
     # 创建调度器：BlockingScheduler
     scheduler = BlockingScheduler()
@@ -84,5 +90,5 @@ def dojob():
     scheduler.start()
 
 
-dojob()
-# getUserData()
+# dojob()
+getUserData()
