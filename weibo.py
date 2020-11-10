@@ -10,7 +10,7 @@ import datetime
 def getUserData():
     print("-----发送钉钉消息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     # 打开数据库连接
-    db = pymysql.connect("122.51.161.239", "root", "pzq18217074393", "weibo")
+    db = pymysql.connect("120.48.17.131", "root", "pzq18217074393", "weibo")
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
 
