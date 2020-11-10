@@ -76,7 +76,7 @@ def sendMessage(userName, ddLink, content, pict):
 # 执行脚本任务  开始运行程序
 def getWeibo():
     print("-----爬取微博信息开始-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
-    os.system('cd weiboSpider;python -m weibo_spider')
+    os.system('cd weiboSpider;python3 -m weibo_spider')
     print("-----爬取微博信息结束-----" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     getUserData()
 
