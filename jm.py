@@ -138,7 +138,7 @@ class Spider(object):
                     # 把发送过的消息 保存起来
                     send_list.append(news.link)
                     # 发送钉钉消息
-                    message = "【" + news.title + "】" + "\n\n" + news.content
+                    message = "[【" + news.title + "】]" + "(" + news.origin_link + ")" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "快讯", "text": message}}
                     # requests.post(url1, headers=headers, data=json.dumps(param))
                     requests.post(url2, headers=headers, data=json.dumps(param))
