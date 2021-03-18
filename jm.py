@@ -120,7 +120,7 @@ class Spider(object):
         # 小强机器人
         url2 = "https://oapi.dingtalk.com/robot/send?access_token=9e7f21e8bf07c8a5afaa13a61cb8ea2458912d7f0bc6f6e475684744aa6c8eef"
         # 快讯早知道
-        url3 = "https://oapi.dingtalk.com/robot/send?access_token=55935f4a38d661a02523451c81b1a78716c15676c7b3bfdd6206ebd7c6b42165"
+        url3 = "https://oapi.dingtalk.com/robot/send?access_token=a08c8d50ce6ce28db08c93c7b1cf9242ecc9f48110e1c31bccea13188713acca"
         headers = {"Content-Type": "application/json;charset=UTF-8"}
         # 连接redis
         try:
