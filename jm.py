@@ -3,10 +3,11 @@ import time
 
 import requests, json
 from lxml import etree
-from redis import StrictRedis
+# from redis import StrictRedis
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
-import pymysql
+
+# import pymysql
 
 # 界面新闻  快讯
 
@@ -32,25 +33,25 @@ user_agent = [
 
 send_list = []
 
-def insertData(sql):
-    # 打开数据库连接
-    db = pymysql.connect("120.48.17.131", "root", "pzq18217074393", "news")
-    # 使用cursor()方法获取操作游标
-    cursor = db.cursor()
-
-    # SQL 插入语句
-    # sql = """INSERT INTO news(news_id, title, url, content, create_time) values('12','测试', 'http:', '暗示法挖而非瓦房挖而非瓦尔', '2020-09-18 21:22')"""
-    try:
-        # 执行sql语句
-        cursor.execute(sql)
-        # 提交到数据库执行
-        db.commit()
-    except:
-        # 如果发生错误则回滚
-        db.rollback()
-
-    # 关闭数据库连接
-    db.close()
+# def insertData(sql):
+#     # 打开数据库连接
+#     db = pymysql.connect("120.48.17.131", "root", "pzq18217074393", "news")
+#     # 使用cursor()方法获取操作游标
+#     cursor = db.cursor()
+#
+#     # SQL 插入语句
+#     # sql = """INSERT INTO news(news_id, title, url, content, create_time) values('12','测试', 'http:', '暗示法挖而非瓦房挖而非瓦尔', '2020-09-18 21:22')"""
+#     try:
+#         # 执行sql语句
+#         cursor.execute(sql)
+#         # 提交到数据库执行
+#         db.commit()
+#     except:
+#         # 如果发生错误则回滚
+#         db.rollback()
+#
+#     # 关闭数据库连接
+#     db.close()
 
 class News:
     def __init__(self, title, date, content, link, origin_link):
@@ -180,7 +181,7 @@ def task():
 
 def dojob():
     # 创建调度器：BlockingScheduler
-    scheduler = BlockingScheduler()
+    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
     # 添加任务,时间间隔40S
     scheduler.add_job(task, 'interval', seconds=40, id='test_job1')
     scheduler.start()
