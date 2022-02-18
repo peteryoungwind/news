@@ -3,7 +3,6 @@ import time
 
 import requests, json
 from lxml import etree
-from redis import StrictRedis
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 from jsonpath import jsonpath
@@ -33,11 +32,12 @@ user_agent = [
 send_list = []
 
 class News:
-    def __init__(self, title, date, content, link):
+    def __init__(self, title, date, content, link, origin_link):
         self.title = title
         self.date = date
         self.content = content
         self.link = link
+        self.origin_link = origin_link
 
     def __str__(self):
         print(self.title, self.date, self.content, self.link)
@@ -80,10 +80,13 @@ class Spider(object):
         for i in range(0, 5, 1):
             item_title = title_list[i]
             item_link = url_list[i]
+            origin_link = item_link
             item_link = item_link.replace("http://finance.eastmoney.com/news/", "").replace(".html", "").replace(",", "")
             item_content = content_list[i]
+            index = item_content.find("】") + 1
+            item_content = item_content[index:len(item_content)]
 
-            new = News(item_title, "item_date", item_content, item_link)
+            new = News(item_title, "item_date", item_content, item_link, origin_link)
             news_list.append(new)
 
         self.save_to_redis(news_list)
@@ -120,9 +123,9 @@ class Spider(object):
                     # sr.expire("dfcf" + news.link, 18000)
                     # 发送钉钉消息
                     send_list.append(news.link)
-                    message = news.content
+                    message = "[【" + news.title + "】]" + "(" + news.origin_link + ")" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "东财快讯", "text": message}}
-                    requests.post(url1, headers=headers, data=json.dumps(param))
+                    requests.post(url2, headers=headers, data=json.dumps(param))
                     # requests.post(url2, headers=headers, data=json.dumps(param))
                     # time.sleep(2)
                     # requests.post(url3, headers=headers, data=json.dumps(param))
@@ -133,7 +136,7 @@ class Spider(object):
 def task():
 
     # 随即暂停0-30秒  降低风险
-    time.sleep(random.randint(0, 30))
+    time.sleep(random.randint(0, 3))
     print("---开始执行任务---")
     global send_list
     # 只保留12条已经发送过的消息
@@ -162,9 +165,9 @@ def task():
 
 def dojob():
     # 创建调度器：BlockingScheduler
-    scheduler = BlockingScheduler()
+    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
     # 添加任务,时间间隔90S
-    scheduler.add_job(task, 'interval', seconds=120, id='test_job1')
+    scheduler.add_job(task, 'interval', seconds=10, id='test_job1')
     scheduler.start()
 
 # 开启任务
