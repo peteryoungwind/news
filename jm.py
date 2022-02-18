@@ -89,20 +89,20 @@ class Spider(object):
 
         for i in range(0, 5, 1):
             # 打印时间
-            item_date = html.xpath('//div[@id="lists"]//div[@class="item-date"]/text()')
+            item_date = html.xpath('//div[@id="load-list"]//div[@class="columns-right-center__newsflash-date-node"]/text()')
             item_date = item_date[i]
             # 打印标题
-            item_title = html.xpath('//div[@id="lists"]//div[@class="item-main"]/p/a/text()')
+            item_title = html.xpath('//div[@id="load-list"]//div[@class="columns-right-center__newsflash-content"]/h4/a/text()')
             item_title = item_title[i]
             # 打印链接
-            item_link = html.xpath('//div[@id="lists"]//div[@class="item-main"]/p/a/@href')
+            item_link = html.xpath('//div[@id="load-list"]//div[@class="columns-right-center__newsflash-content"]/h4/a/@href')
             item_link = item_link[i]
             origin_link = item_link
             item_link = item_link.replace("https://www.jiemian.com/article/", "").replace(".html", "")
             item_link = "jm" + item_link
             # 打印内容
-            item_content = html.xpath('//div[@id="lists"]//div[@class="item-main"]/p/text()')
-            item_content = item_content[i * 2 + 1]
+            item_content = html.xpath('//div[@id="load-list"]//div[@class="columns-right-center__newsflash-content"]/p/text()')
+            item_content = item_content[i]
             item_content = item_content.replace("】", "").strip()
             new = News(item_title, item_date, item_content, item_link, origin_link)
             news_list.append(new)
