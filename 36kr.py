@@ -3,7 +3,6 @@ import time
 
 import requests, json
 from lxml import etree
-from redis import StrictRedis
 import datetime
 from apscheduler.schedulers.blocking import BlockingScheduler
 
@@ -32,11 +31,12 @@ user_agent = [
 send_list = []
 
 class News:
-    def __init__(self, title, date, content, link):
+    def __init__(self, title, date, content, link, origin_link):
         self.title = title
         self.date = date
         self.content = content
         self.link = link
+        self.origin_link = origin_link
 
     def __str__(self):
         print(self.title, self.date, self.content, self.link)
@@ -80,13 +80,14 @@ class Spider(object):
             # 打印标题
             item_link = html.xpath("//div[@class='newsflash-catalog-flow-list']/div[@class='flow-item'][" + str(i) + "]//a[@class='item-title']/@href")
             item_link = item_link[0]
+            origin_link = "https://36kr.com" + item_link
             item_link = item_link.replace("/newsflashes/", "")
             # print(item_link)
             # 打印内容
             item_content = html.xpath("//div[@class='newsflash-catalog-flow-list']/div[@class='flow-item'][" + str(i) + "]//div[@class='item-desc']/span/text()")
             item_content = item_content[0]
             # print(item_content)
-            new = News(item_title, "item_date", item_content, item_link)
+            new = News(item_title, "item_date", item_content, item_link, origin_link)
             news_list.append(new)
 
         self.save_to_redis(news_list)
@@ -120,7 +121,7 @@ class Spider(object):
                     # sr.expire("36kr" + news.link, 36000)
                     send_list.append(news.link)
                     # 发送钉钉消息
-                    message = "【" + news.title + "】" + "\n\n" + news.content
+                    message = "[【" + news.title + "】]" + "(" + news.origin_link + ")" + "\n\n" + news.content
                     param = {'msgtype': 'markdown', 'markdown': {"title": "36kr快讯", "text": message}}
                     requests.post(url1, headers=headers, data=json.dumps(param))
                     # requests.post(url2, headers=headers, data=json.dumps(param))
@@ -157,7 +158,7 @@ def task():
 
 def dojob():
     # 创建调度器：BlockingScheduler
-    scheduler = BlockingScheduler()
+    scheduler = BlockingScheduler(timezone='Asia/Shanghai')
     # 添加任务,时间间隔90S
     scheduler.add_job(task, 'interval', seconds=180, id='test_job1')
     scheduler.start()
