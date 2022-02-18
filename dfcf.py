@@ -136,7 +136,7 @@ class Spider(object):
 def task():
 
     # 随即暂停0-30秒  降低风险
-    time.sleep(random.randint(0, 3))
+    time.sleep(random.randint(0, 30))
     print("---开始执行任务---")
     global send_list
     # 只保留12条已经发送过的消息
@@ -167,7 +167,7 @@ def dojob():
     # 创建调度器：BlockingScheduler
     scheduler = BlockingScheduler(timezone='Asia/Shanghai')
     # 添加任务,时间间隔90S
-    scheduler.add_job(task, 'interval', seconds=10, id='test_job1')
+    scheduler.add_job(task, 'interval', seconds=90, id='test_job1')
     scheduler.start()
 
 # 开启任务

@@ -166,7 +166,7 @@ def task():
         pass
     else:
         # 随机暂停0-30秒  降低风险
-        time.sleep(random.randint(0, 30))
+        time.sleep(random.randint(0, 20))
         print("---开始执行任务---")
 
         global send_list
@@ -183,7 +183,7 @@ def dojob():
     # 创建调度器：BlockingScheduler
     scheduler = BlockingScheduler(timezone='Asia/Shanghai')
     # 添加任务,时间间隔40S
-    scheduler.add_job(task, 'interval', seconds=40, id='test_job1')
+    scheduler.add_job(task, 'interval', seconds=60, id='test_job1')
     scheduler.start()
 
 
